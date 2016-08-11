@@ -211,6 +211,7 @@ module EntityStoreSequel
         result[item[:id]] = query.order(:entity_version, :id).map do |attrs|
           begin
             hash = attrs[:data].to_h
+            hash[:_id] = attrs[:id]
             hash[:entity_version] = attrs[:entity_version]
             EntityStore::Config.load_type(attrs[:_type]).new(hash)
           rescue => e
