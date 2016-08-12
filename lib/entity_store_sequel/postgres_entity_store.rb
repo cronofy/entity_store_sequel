@@ -19,7 +19,11 @@ module EntityStoreSequel
       def database
         return @_database if @_database
 
-        @_database ||= Sequel.connect(connection_string)
+        self.database = Sequel.connect(connection_string)
+      end
+
+      def database=(db)
+        @_database = db
         @_database.extension :pg_array
         @_database.extension :pg_json
 

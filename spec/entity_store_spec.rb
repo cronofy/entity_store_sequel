@@ -57,3 +57,31 @@ describe "end to end" do
     end
   end
 end
+
+describe "setting connection from existing" do
+  before(:each) do
+    PostgresEntityStore.database = Sequel.connect('postgres://localhost/cronofy_test')
+    PostgresEntityStore.init
+
+    EntityStore::Config.setup do |config|
+      config.store = PostgresEntityStore.new
+      config.event_subscribers << DummyEntitySubscriber
+    end
+  end
+
+  context "when save entity" do
+    let(:name) { random_string }
+    before(:each) do
+      @entity = DummyEntity.new
+      @entity.set_name name
+      @id = Store.new.save @entity
+    end
+
+    it "publishes event to the subscriber" do
+      DummyEntitySubscriber.event_name.should eq(name)
+    end
+    it "is retrievable with the events applied" do
+      EntityStore::Store.new.get(@entity.id).name.should eq(name)
+    end
+  end
+end
