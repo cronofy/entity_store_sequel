@@ -10,6 +10,7 @@ module EntityStoreSequel
 
     Sequel.extension :pg_array_ops
     Sequel.extension :pg_json_ops
+    Sequel.extension :migration
 
     class << self
       attr_accessor :connection_string
@@ -26,25 +27,8 @@ module EntityStoreSequel
       end
 
       def init
-        unless database.table_exists?(:entities)
-          database.create_table :entities do
-            column :id, :char, primary_key: true, size: 24
-            String :_type
-            integer :snapshot_key
-            integer :version
-            column :snapshot, :jsonb
-          end
-        end
-
-        unless database.table_exists?(:entity_events)
-          database.create_table :entity_events do
-            column :id, :char, primary_key: true, size: 24
-            String :_type
-            column :_entity_id, :char, size: 24
-            integer :entity_version
-            column :data, :jsonb
-          end
-        end
+        migration_path = File.expand_path("../../sequel/migrations", __FILE__)
+        Sequel::Migrator.run(self.database, migration_path, :table=>:entity_store_schema_migration)
       end
     end
 
