@@ -8,13 +8,12 @@ module EntityStoreSequel
   class PostgresEntityStore
     include EntityStore::Logging
 
-    Sequel.extension :pg_array_ops
-    Sequel.extension :pg_json_ops
     Sequel.extension :migration
 
     class << self
       attr_accessor :connection_string
       attr_writer :connect_timeout
+      attr_accessor :native_json_hash
 
       def database
         return @_database if @_database
@@ -24,8 +23,13 @@ module EntityStoreSequel
 
       def database=(db)
         @_database = db
-        @_database.extension :pg_array
-        @_database.extension :pg_json
+
+        if db.adapter_scheme == :postgres
+          @_database.extension :pg_json
+          self.native_json_hash = true
+        else
+          self.native_json_hash = false
+        end
 
         @_database
       end
@@ -155,7 +159,12 @@ module EntityStoreSequel
           end
 
           if attrs[:snapshot]
-            hash = attrs[:snapshot].to_h
+            if self.class.native_json_hash
+              hash = attrs[:snapshot].to_h
+            else
+              hash = PigeonHole.parse(attrs[:snapshot])
+            end
+
             entity = entity_type.new(hash)
           else
             entity = entity_type.new({'id' => attrs[:id].to_s })
@@ -198,7 +207,12 @@ module EntityStoreSequel
 
         result[item[:id]] = query.order(:entity_version, :id).map do |attrs|
           begin
-            hash = attrs[:data].to_h
+            if self.class.native_json_hash
+              hash = attrs[:data].to_h
+            else
+              hash = PigeonHole.parse(attrs[:data])
+            end
+
             hash[:_id] = attrs[:id]
             hash[:entity_version] = attrs[:entity_version]
             EntityStore::Config.load_type(attrs[:_type]).new(hash)

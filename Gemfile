@@ -4,6 +4,8 @@ gemspec
 gem 'rake'
 
 group :development, :test do
+  gem 'pg'
+  gem 'sqlite3'
   gem 'hatchet'
   gem 'rspec'
   gem 'guard-rspec'

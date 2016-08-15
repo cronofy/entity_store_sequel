@@ -17,8 +17,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency('sequel')
-  s.add_dependency('pg')
-  s.add_dependency('sequel_pg')
   s.add_dependency('entity_store')
   s.add_dependency('pigeon_hole', '~> 0.1.0')
   s.add_dependency('bson', '~> 1.8')

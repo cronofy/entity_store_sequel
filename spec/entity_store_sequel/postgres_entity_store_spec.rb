@@ -217,7 +217,7 @@ describe PostgresEntityStore do
       store.entities.where(:id => entity.id).first
     end
 
-    let(:snapshot) { saved_entity[:snapshot] }
+    let(:snapshot) { saved_entity[:snapshot].to_h }
 
     subject { store.snapshot_entity(entity) }
 
