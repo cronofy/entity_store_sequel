@@ -120,7 +120,7 @@ module EntityStoreSequel
           :_type => event.class.name,
           :_entity_id => BSON::ObjectId.from_string(event.entity_id).to_s,
           :entity_version => event.entity_version,
-          :data => PigeonHole.generate(event.attributes),
+          :data => PigeonHole.generate(hash_without_keys(event.attributes, :entity_id)),
         }
         events.insert(doc)
       end
@@ -215,6 +215,7 @@ module EntityStoreSequel
 
             hash[:_id] = attrs[:id]
             hash[:entity_version] = attrs[:entity_version]
+            hash[:entity_id] = attrs[:_entity_id]
             EntityStore::Config.load_type(attrs[:_type]).new(hash)
           rescue => e
             log_error "Error loading type #{attrs[:_type]}", e
@@ -224,6 +225,14 @@ module EntityStoreSequel
       end
 
       result
+    end
+
+    private
+
+    def hash_without_keys(hash, *keys)
+      hash_dup = hash.dup
+      keys.each { |key| hash_dup.delete(key) }
+      hash_dup
     end
   end
 end
