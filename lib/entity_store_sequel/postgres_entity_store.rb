@@ -118,11 +118,11 @@ module EntityStoreSequel
         doc = {
           :id => id.to_s,
           :_type => event.class.name,
-          :_entity_id => BSON::ObjectId.from_string(event.entity_id).to_s,
+          :_entity_id => event.entity_id.to_s,
           :entity_version => event.entity_version,
           :by => event.attributes[:by],
           :at => event.attributes[:at],
-          :data => PigeonHole.generate(hash_without_keys(event.attributes, :entity_id)),
+          :data => PigeonHole.generate(hash_without_keys(event.attributes, :entity_id, :by, :at)),
         }
         events.insert(doc)
       end
