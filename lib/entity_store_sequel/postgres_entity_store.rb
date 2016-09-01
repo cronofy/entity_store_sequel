@@ -195,18 +195,23 @@ module EntityStoreSequel
     def get_events(criteria)
       return {} if criteria.empty?
 
-      result = {}
+      query = events.where('1=2')
 
       criteria.each do |item|
-        raise ArgumentError.new(":id missing from criteria") unless item[:id]
-
-        query = events.where(:_entity_id => item[:id])
-
         if item[:since_version]
-          query = query.where('entity_version > ?', item[:since_version])
+          query = query.or('_entity_id = ? AND entity_version > ?', item[:id], item[:since_version])
+        else
+          query = query.or('_entity_id = ?', item[:id])
         end
+      end
 
-        result[item[:id]] = query.order(:entity_version, :id).map do |attrs|
+      result = query.to_hash_groups(:_entity_id)
+
+      result.each do |id, events|
+        events.sort_by! { |attrs| [attrs[:entity_version], attrs[:id].to_s] }
+
+        # Convert the attributes into event objects
+        events.map! do |attrs|
           begin
             if self.class.native_json_hash
               hash = attrs[:data].to_h
@@ -221,9 +226,15 @@ module EntityStoreSequel
             EntityStore::Config.load_type(attrs[:_type]).new(hash)
           rescue => e
             log_error "Error loading type #{attrs[:_type]}", e
-            next
+            nil
           end
-        end.compact
+        end
+
+        events.compact!
+      end
+
+      criteria.each do |item|
+        result[item[:id].to_s] ||= []
       end
 
       result
