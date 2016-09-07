@@ -195,13 +195,14 @@ module EntityStoreSequel
     def get_events(criteria)
       return {} if criteria.empty?
 
-      query = events.where('1=2')
+      query = events
 
-      criteria.each do |item|
+      criteria.each_with_index do |item, i|
+        filter_method = filter_method_name(i)
         if item[:since_version]
-          query = query.or('_entity_id = ? AND entity_version > ?', item[:id], item[:since_version])
+          query = query.send(filter_method, '_entity_id = ? AND entity_version > ?', item[:id], item[:since_version])
         else
-          query = query.or('_entity_id = ?', item[:id])
+          query = query.send(filter_method, '_entity_id = ?', item[:id])
         end
       end
 
@@ -241,6 +242,10 @@ module EntityStoreSequel
     end
 
     private
+
+    def filter_method_name(index)
+      index == 0 ? :where : :or
+    end
 
     def hash_without_keys(hash, *keys)
       hash_dup = hash.dup
