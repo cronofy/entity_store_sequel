@@ -66,6 +66,24 @@ describe PostgresEntityStore do
       store.add_events([ second_event, unrelated_event, first_event, third_event, fourth_event ])
     end
 
+    context "multiple entities" do
+      subject { store.get_events( [{ id: event_entity_id }, { id: unknown_id }]) }
+
+      context "all events" do
+        let(:event_entity_id) { entity_id }
+        let(:unknown_id) { random_object_id }
+        let(:since_version) { 0 }
+
+        it "should return the four events in order for known id" do
+          subject[event_entity_id].should == [first_event, second_event, third_event, fourth_event]
+        end
+
+        it "should return no events in order unknown id" do
+          subject[unknown_id].should be_empty
+        end
+      end
+    end
+
     subject { store.get_events( [{ id: event_entity_id, since_version: since_version }])[event_entity_id] }
 
     context "all events" do

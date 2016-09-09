@@ -195,18 +195,24 @@ module EntityStoreSequel
     def get_events(criteria)
       return {} if criteria.empty?
 
-      result = {}
+      query = events
 
-      criteria.each do |item|
-        raise ArgumentError.new(":id missing from criteria") unless item[:id]
-
-        query = events.where(:_entity_id => item[:id])
-
+      criteria.each_with_index do |item, i|
+        filter_method = filter_method_name(i)
         if item[:since_version]
-          query = query.where('entity_version > ?', item[:since_version])
+          query = query.send(filter_method, '_entity_id = ? AND entity_version > ?', item[:id], item[:since_version])
+        else
+          query = query.send(filter_method, '_entity_id = ?', item[:id])
         end
+      end
 
-        result[item[:id]] = query.order(:entity_version, :id).map do |attrs|
+      result = query.to_hash_groups(:_entity_id)
+
+      result.each do |id, events|
+        events.sort_by! { |attrs| [attrs[:entity_version], attrs[:id].to_s] }
+
+        # Convert the attributes into event objects
+        events.map! do |attrs|
           begin
             if self.class.native_json_hash
               hash = attrs[:data].to_h
@@ -221,15 +227,25 @@ module EntityStoreSequel
             EntityStore::Config.load_type(attrs[:_type]).new(hash)
           rescue => e
             log_error "Error loading type #{attrs[:_type]}", e
-            next
+            nil
           end
-        end.compact
+        end
+
+        events.compact!
+      end
+
+      criteria.each do |item|
+        result[item[:id].to_s] ||= []
       end
 
       result
     end
 
     private
+
+    def filter_method_name(index)
+      index == 0 ? :where : :or
+    end
 
     def hash_without_keys(hash, *keys)
       hash_dup = hash.dup
