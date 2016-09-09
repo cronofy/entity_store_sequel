@@ -121,7 +121,7 @@ module EntityStoreSequel
           :_entity_id => event.entity_id.to_s,
           :entity_version => event.entity_version,
           :at => event.attributes[:at],
-          :data => PigeonHole.generate(hash_without_keys(event.attributes, :entity_id, :at)),
+          :data => PigeonHole.generate(hash_without_keys(event.attributes, :entity_id, :at, :entity_version)),
         }
         events.insert(doc)
       end
