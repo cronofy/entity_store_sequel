@@ -7,10 +7,6 @@ require "#{Rake.application.original_dir}/lib/entity_store_sequel"
 
 require_relative '../lib/sequel/core_ext'
 
-RSpec.configure do |config|
-  config.color_enabled = true
-end
-
 include EntityStore
 include EntityStoreSequel
 
