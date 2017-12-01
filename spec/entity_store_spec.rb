@@ -50,10 +50,10 @@ describe "end to end" do
     end
 
     it "publishes event to the subscriber" do
-      DummyEntitySubscriber.event_name.should eq(name)
+      expect(DummyEntitySubscriber.event_name).to eq(name)
     end
     it "is retrievable with the events applied" do
-      EntityStore::Store.new.get(@entity.id).name.should eq(name)
+      expect(EntityStore::Store.new.get(@entity.id).name).to eq(name)
     end
   end
 end
@@ -78,10 +78,10 @@ describe "setting connection from existing" do
     end
 
     it "publishes event to the subscriber" do
-      DummyEntitySubscriber.event_name.should eq(name)
+      expect(DummyEntitySubscriber.event_name).to eq(name)
     end
     it "is retrievable with the events applied" do
-      EntityStore::Store.new.get(@entity.id).name.should eq(name)
+      expect(EntityStore::Store.new.get(@entity.id).name).to eq(name)
     end
   end
 end

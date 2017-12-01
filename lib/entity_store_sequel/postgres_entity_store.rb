@@ -200,9 +200,9 @@ module EntityStoreSequel
       criteria.each_with_index do |item, i|
         filter_method = filter_method_name(i)
         if item[:since_version]
-          query = query.send(filter_method, '_entity_id = ? AND entity_version > ?', item[:id], item[:since_version])
+          query = query.send(filter_method, Sequel.lit('_entity_id = ? AND entity_version > ?', item[:id], item[:since_version]))
         else
-          query = query.send(filter_method, '_entity_id = ?', item[:id])
+          query = query.send(filter_method, Sequel.lit('_entity_id = ?', item[:id]))
         end
       end
 
