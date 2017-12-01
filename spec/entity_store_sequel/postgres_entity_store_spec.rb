@@ -75,11 +75,11 @@ describe PostgresEntityStore do
         let(:since_version) { 0 }
 
         it "should return the four events in order for known id" do
-          subject[event_entity_id].should == [first_event, second_event, third_event, fourth_event]
+          expect(subject[event_entity_id]).to eq [first_event, second_event, third_event, fourth_event]
         end
 
         it "should return no events in order unknown id" do
-          subject[unknown_id].should be_empty
+          expect(subject[unknown_id]).to be_empty
         end
       end
     end
@@ -91,7 +91,7 @@ describe PostgresEntityStore do
       let(:since_version) { 0 }
 
       it "should return the four events in order" do
-        subject.should == [first_event, second_event, third_event, fourth_event]
+        expect(subject).to eq [first_event, second_event, third_event, fourth_event]
       end
     end
 
@@ -100,7 +100,7 @@ describe PostgresEntityStore do
       let(:since_version) { second_event.entity_version }
 
       it "should only include events greater than the given version" do
-        subject.should == [ fourth_event ]
+        expect(subject).to eq [ fourth_event ]
       end
     end
 
@@ -109,7 +109,7 @@ describe PostgresEntityStore do
       let(:since_version) { 0 }
 
       it "should return an empty array" do
-        subject.should be_empty
+        expect(subject).to be_empty
       end
     end
   end
@@ -137,28 +137,28 @@ describe PostgresEntityStore do
     subject { store.get_entities( [ id ], options) }
 
     it "should retrieve an entity from the store with the same ID" do
-      subject.first.id.should == saved_entity.id
+      expect(subject.first.id).to eq saved_entity.id
     end
 
     it "should retrieve an entity from the store with the same class" do
-      subject.first.class.should == saved_entity.class
+      expect(subject.first.class).to eq saved_entity.class
     end
 
     it "should have the same version" do
-      subject.first.version.should == saved_entity.version
+      expect(subject.first.version).to eq saved_entity.version
     end
 
     context "when a snapshot does not exist" do
       it "should not have set the name" do
-        subject.first.name.should be_nil
+        expect(subject.first.name).to be_nil
       end
 
       it "should not have a date set" do
-        subject.first.date.should be_nil
+        expect(subject.first.date).to be_nil
       end
 
       it "should not have a symbol set" do
-        subject.first.symbol.should be_nil
+        expect(subject.first.symbol).to be_nil
       end
     end
 
@@ -170,20 +170,20 @@ describe PostgresEntityStore do
 
       context "when a snapshot key not in use" do
         it "should have set the name" do
-          subject.first.name.should == saved_entity.name
+          expect(subject.first.name).to eq saved_entity.name
         end
 
         it "should have a date set" do
-          subject.first.date.should == saved_entity.date
+          expect(subject.first.date).to eq saved_entity.date
         end
 
         it "should have a symbol set" do
-          subject.first.symbol.should == :foo
+          expect(subject.first.symbol).to eq :foo
         end
 
         it "should have a symbol hash set" do
-          subject.first.symbol_hash.should ==  { "foo" => :bar }
-          subject.first.nested_hash.should ==  { "foo" => { "bar" => :baz } }
+          expect(subject.first.symbol_hash).to eq ({ "foo" => :bar })
+          expect(subject.first.nested_hash).to eq ({ "foo" => { "bar" => :baz } })
         end
       end
 
@@ -192,7 +192,7 @@ describe PostgresEntityStore do
 
         context "when the key matches the class's key" do
           it "should have set the name" do
-            subject.first.name.should == saved_entity.name
+            expect(subject.first.name).to eq saved_entity.name
           end
         end
 
@@ -202,7 +202,7 @@ describe PostgresEntityStore do
           end
 
           it "should ignore the invalidated snapshot" do
-            subject.first.name.should be_nil
+            expect(subject.first.name).to be_nil
           end
         end
       end
@@ -242,10 +242,10 @@ describe PostgresEntityStore do
     it "should add a snaphot to the entity record" do
       subject
 
-      snapshot['id'].should eq(entity.id)
-      snapshot['version'].should eq(entity.version)
-      snapshot['name'].should eq(entity.name)
-      snapshot['description'].should eq(entity.description)
+      expect(snapshot['id']).to eq(entity.id)
+      expect(snapshot['version']).to eq(entity.version)
+      expect(snapshot['name']).to eq(entity.name)
+      expect(snapshot['description']).to eq(entity.description)
     end
 
     context "entity with snapshot key" do
@@ -253,7 +253,7 @@ describe PostgresEntityStore do
 
       it "should store the snapshot key" do
         subject
-        saved_entity[:snapshot_key].should == entity.class.entity_store_snapshot_key
+        expect(saved_entity[:snapshot_key]).to eq entity.class.entity_store_snapshot_key
       end
     end
   end
