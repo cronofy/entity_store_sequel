@@ -61,6 +61,14 @@ module EntityStoreSequel
     def ensure_indexes
     end
 
+    def clear_entity_events(id, excluded_types)
+      events.where(_entity_id: id).each do |event|
+        next if excluded_types.include?(event[:_type])
+
+        events.where(id: event[:id]).delete
+      end
+    end
+
     def add_entity(entity, id = BSON::ObjectId.new)
       entities.insert(:id => id.to_s, :_type => entity.class.name, :version => entity.version)
       id.to_s

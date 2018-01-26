@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    entity_store_sequel (0.0.10)
+    entity_store_sequel (0.0.11)
       bson (~> 1.8)
       entity_store
       hatchet (~> 0.2)
