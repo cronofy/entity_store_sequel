@@ -1,8 +1,9 @@
-require 'sequel'
-require 'uri'
+require 'bson'
+require 'entity_store'
 require 'json'
 require 'pigeon_hole'
-require 'entity_store'
+require 'sequel'
+require 'uri'
 
 module EntityStoreSequel
   class PostgresEntityStore
@@ -147,7 +148,7 @@ module EntityStoreSequel
       ids.each do |id|
         begin
           BSON::ObjectId.from_string(id)
-        rescue BSON::InvalidObjectId
+        rescue BSON::ObjectId::Invalid
           raise NotFound.new(id) if options.fetch(:raise_exception, true)
           nil
         end
