@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     entity_store_sequel (0.1.0)
-      bson (~> 3.0)
+      bson (~> 4.0)
       entity_store
       hatchet (~> 0.2)
       pigeon_hole (~> 0.1.0)
@@ -11,11 +11,11 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
-    bson (3.2.7)
+    bson (4.3.0)
     coderay (1.1.2)
     diff-lcs (1.3)
-    entity_store (1.1.0)
-      bson (~> 3.0)
+    entity_store (1.2.0)
+      bson (~> 4.0)
       hatchet (~> 0.2)
     ffi (1.9.23)
     formatador (0.2.5)
