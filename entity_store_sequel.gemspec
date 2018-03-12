@@ -19,6 +19,6 @@ Gem::Specification.new do |s|
   s.add_dependency('sequel')
   s.add_dependency('entity_store')
   s.add_dependency('pigeon_hole', '~> 0.1.0')
-  s.add_dependency('bson', '~> 3.0')
+  s.add_dependency('bson', '~> 4.0')
   s.add_dependency('hatchet', '~> 0.2')
 end
