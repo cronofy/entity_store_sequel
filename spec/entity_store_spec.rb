@@ -63,7 +63,7 @@ describe "setting connection per instance" do
     PostgresEntityStore.connection_string = 'FAKE_CONNECTION_STRING'
 
     EntityStore::Config.setup do |config|
-      config.store = PostgresEntityStore.new('postgres://localhost/cronofy_test')
+      config.store = PostgresEntityStore.new(Sequel.connect('postgres://localhost/cronofy_test'))
       config.event_subscribers << DummyEntitySubscriber
     end
 
