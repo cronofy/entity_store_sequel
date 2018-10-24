@@ -37,12 +37,19 @@ module EntityStoreSequel
 
       def init
         migration_path = File.expand_path("../../sequel/migrations", __FILE__)
-        Sequel::Migrator.run(self.database, migration_path, :table=>:entity_store_schema_migration)
+        Sequel::Migrator.run(self.database, migration_path, table: :entity_store_schema_migration)
       end
     end
 
+    def initialize(database_connection = nil)
+      return unless database_connection
+
+      @database_connection = database_connection
+      @database_connection.extension :pg_json
+    end
+
     def open
-      PostgresEntityStore.database
+      @database_connection || PostgresEntityStore.database
     end
 
     def entities
