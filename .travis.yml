@@ -2,5 +2,8 @@ language: ruby
 rvm:
  - 2.2
 
+addons:
+  postgresql: "9.5"
+
 before_script:
   - psql -c 'create database cronofy_test;' -U postgres
