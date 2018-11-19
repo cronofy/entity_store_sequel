@@ -290,11 +290,11 @@ module EntityStoreSequel
           hash = PigeonHole.parse(attrs[:data])
         end
 
-        hash[:id] = attrs[:id]
+        hash[:_id] = attrs[:id]
+        hash[:_type] = attrs[:_type]
         hash[:entity_version] = attrs[:entity_version]
         hash[:entity_id] = attrs[:_entity_id]
         hash[:at] = attrs[:at]
-        hash[:type] = attrs[:_type]
 
         hash
       end
