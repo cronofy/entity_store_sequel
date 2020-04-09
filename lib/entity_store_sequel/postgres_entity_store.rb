@@ -129,18 +129,40 @@ module EntityStoreSequel
       add_events_with_ids(events_with_id)
     end
 
-    def add_events_with_ids(event_id_map)
-      event_id_map.each do |id, event|
-        doc = {
-          :id => id.to_s,
-          :_type => event.class.name,
-          :_entity_id => event.entity_id.to_s,
-          :entity_version => event.entity_version,
-          :at => event.attributes[:at],
-          :data => PigeonHole.generate(hash_without_keys(event.attributes, :entity_id, :at, :entity_version)),
-        }
+    def upsert_events(items)
+      events_with_id = items.map do |e|
+        [ e._id, e ]
+      end
+
+      filtered_events = []
+      events_with_id.each do |id, event|
+        next if events.where(id: id.to_s).count > 0
+
+        filtered_events << event
+
+        doc = event_doc(id, event)
         events.insert(doc)
       end
+
+      filtered_events
+    end
+
+    def add_events_with_ids(event_id_map)
+      event_id_map.each do |id, event|
+        doc = event_doc(id, event)
+        events.insert(doc)
+      end
+    end
+
+    def event_doc(id, event)
+      {
+        :id => id.to_s,
+        :_type => event.class.name,
+        :_entity_id => event.entity_id.to_s,
+        :entity_version => event.entity_version,
+        :at => event.attributes[:at],
+        :data => PigeonHole.generate(hash_without_keys(event.attributes, :entity_id, :at, :entity_version, :_id)),
+      }
     end
 
     # Public: loads the entity from the store, including any available snapshots
@@ -258,6 +280,25 @@ module EntityStoreSequel
     end
 
     private
+
+    def get_raw_events(entity_id)
+      rows = events.where(:_entity_id => entity_id).order_by(:entity_version, :id)
+      rows.map do |attrs|
+        if self.class.native_json_hash
+          hash = attrs[:data].to_h
+        else
+          hash = PigeonHole.parse(attrs[:data])
+        end
+
+        hash[:_id] = attrs[:id]
+        hash[:_type] = attrs[:_type]
+        hash[:entity_version] = attrs[:entity_version]
+        hash[:entity_id] = attrs[:_entity_id]
+        hash[:at] = attrs[:at]
+
+        hash
+      end
+    end
 
     def filter_method_name(index)
       index == 0 ? :where : :or
