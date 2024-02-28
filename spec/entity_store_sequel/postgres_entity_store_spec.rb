@@ -47,6 +47,21 @@ describe PostgresEntityStore do
     end
   end
 
+  class DummyEntityExcludedEvent
+    include EntityStore::Event
+
+    attr_accessor :marker
+
+    def apply(entity)
+      # No-op
+    end
+
+    def ==(other)
+      # Crude check relying on inspect, ok for tests
+      self.inspect == other.inspect
+    end
+  end
+
   let(:store) do
     described_class.connection_string = ENV['SQL_CONNECTION'] || 'postgres://localhost/cronofy_test'
     described_class.init
@@ -123,23 +138,42 @@ describe PostgresEntityStore do
     let(:third_event)     { DummyEntityNameSet.new(:entity_id => entity_id, :entity_version => 2, :name => random_string) }
     let(:unrelated_event) { DummyEntityNameSet.new(:entity_id => second_entity_id, :entity_version => 4, :name => random_string) }
     let(:fourth_event)    { DummyEntityNameSet.new(:entity_id => entity_id, :entity_version => 3, :name => random_string) }
+    let(:excluded_event)  { DummyEntityExcludedEvent.new(:entity_id => entity_id, :entity_version => 5, :marker => random_string) }
 
     before do
-      store.add_events([ second_event, unrelated_event, first_event, third_event, fourth_event ])
+      store.add_events([ second_event, unrelated_event, first_event, third_event, fourth_event, excluded_event ])
     end
 
-    subject { store.clear_entity_events(entity_id, []) }
+    context "clearing everything" do
+      subject { store.clear_entity_events(entity_id, []) }
 
-    it "clears the events from the entity" do
-      subject
-      events = store.get_events( [ id: entity_id ])[entity_id]
-      expect(events).to be_empty
+      it "clears the events from the entity" do
+        subject
+        events = store.get_events( [ id: entity_id ])[entity_id]
+        expect(events).to be_empty
+      end
+
+      it "does not delete unrelated the events" do
+        subject
+        events = store.get_events( [ id: second_entity_id ])[second_entity_id]
+        expect(events).to eq [unrelated_event]
+      end
     end
 
-    it "does not delete unrelated the events" do
-      subject
-      events = store.get_events( [ id: second_entity_id ])[second_entity_id]
-      expect(events.count).to eq(1)
+    context "excluding an event type from deletion" do
+      subject { store.clear_entity_events(entity_id, [DummyEntityExcludedEvent.to_s]) }
+
+      it "clears all other events from the entity" do
+        subject
+        events = store.get_events( [ id: entity_id ])[entity_id]
+        expect(events).to eq [excluded_event]
+      end
+
+      it "does not delete unrelated the events" do
+        subject
+        events = store.get_events( [ id: second_entity_id ])[second_entity_id]
+        expect(events).to eq [unrelated_event]
+      end
     end
   end
 
