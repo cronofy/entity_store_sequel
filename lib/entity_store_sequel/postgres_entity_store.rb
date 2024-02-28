@@ -70,10 +70,13 @@ module EntityStoreSequel
     end
 
     def clear_entity_events(id, excluded_types)
-      events.where(_entity_id: id).each do |event|
-        next if excluded_types.include?(event[:_type])
-
-        events.where(id: event[:id]).delete
+      if excluded_types.empty?
+        events.where(_entity_id: id).delete
+      else
+        events.where(_entity_id: id).select(:id, :_type).each do |event|
+          next if excluded_types.include?(event[:_type])
+          events.where(id: event[:id]).delete
+        end
       end
     end
 
