@@ -267,7 +267,7 @@ module EntityStoreSequel
             hash[:at] = attrs[:at]
             EntityStore::Config.load_type(attrs[:_type]).new(hash)
           rescue => e
-            log_error "Error loading type - type=#{attrs[:_type]} id=#{attrs[:id]} entity_id=#{attrs[:entity_id]}", e
+            log_error "Error loading type - type=#{attrs[:_type]} id=#{attrs[:id]} entity_id=#{attrs[:_entity_id]}", e
             nil
           end
         end
