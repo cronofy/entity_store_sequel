@@ -18,7 +18,7 @@ GEM
       bson (~> 4.0)
       hatchet (~> 0.2)
     hatchet (0.2.14)
-    mini_portile2 (2.8.5)
+    mini_portile2 (2.8.9)
     pg (1.5.5)
     pigeon_hole (0.1.9)
     rake (13.1.0)
@@ -37,7 +37,7 @@ GEM
     rspec-support (3.13.1)
     sequel (5.77.0)
       bigdecimal
-    sqlite3 (1.7.2)
+    sqlite3 (2.9.6)
       mini_portile2 (~> 2.8.0)
 
 PLATFORMS
